@@ -4,7 +4,11 @@
 
 param(
     [Parameter()]
-    [string]$CommitMessage = ""
+    [string]$CommitMessage = "",
+    
+    [Parameter()]
+    [ValidateSet("public", "private")]
+    [string]$Visibility = "private"
 )
 
 function Initialize-GitRepo {
@@ -25,12 +29,28 @@ function Initialize-GitRepo {
         return $false
     }
 
-    # Initialize git
+    # Initialize git and set main branch
     git init
+    git branch -M main
 
     # Create standard files if they don't exist
     if (!(Test-Path README.md)) {
-        New-Item README.md
+        @"
+# $repoName
+
+## Description
+Add your project description here.
+
+## Features
+- Feature 1
+- Feature 2
+
+## Installation
+Describe installation steps here.
+
+## Usage
+Describe how to use your project.
+"@ | Out-File -FilePath README.md -Encoding utf8
     }
     if (!(Test-Path .gitignore)) {
         New-Item .gitignore
@@ -108,7 +128,8 @@ function Initialize-VersionFile {
 
 function Push-ToGithub {
     param(
-        [string]$CommitMessage
+        [string]$CommitMessage,
+        [string]$Visibility
     )
 
     # Stage all changes
@@ -119,14 +140,14 @@ function Push-ToGithub {
     
     # Use provided commit message or default to timestamp
     if ([string]::IsNullOrEmpty($CommitMessage)) {
-        $CommitMessage = "Update $timestamp: Regular update"
+        $CommitMessage = "Update ${timestamp}: Regular update"
     }
 
     # Commit with message
     git commit -m $CommitMessage
 
     # Push to GitHub
-    git push origin main
+    git push -u origin main
 }
 
 # Main workflow
@@ -150,14 +171,18 @@ try {
         git commit -m "Initial commit: Project structure setup"
 
         # Create GitHub repository and push
-        gh repo create $repoName --private --source=. --remote=origin
+        $visibilityFlag = if ($Visibility -eq "private") { "--private" } else { "--public" }
+        gh repo create $repoName $visibilityFlag --source=. --remote=origin
         git push -u origin main
         
-        Write-Host "Repository initialized and pushed to GitHub successfully!"
+        # Display repository URL
+        $repoUrl = "https://github.com/$env:GITHUB_USERNAME/$repoName"
+        Write-Host "`nRepository created successfully!"
+        Write-Host "URL: $repoUrl"
     } else {
         # Update existing repository
         Write-Host "Updating existing repository..."
-        Push-ToGithub -CommitMessage $CommitMessage
+        Push-ToGithub -CommitMessage $CommitMessage -Visibility $Visibility
         Update-GithubInfo
         Write-Host "Repository updated and pushed to GitHub successfully!"
     }
