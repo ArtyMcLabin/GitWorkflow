@@ -57,6 +57,15 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 - Git
 - GitHub CLI (gh)
 
+## Project Structure
+```
+GitWorkflow/
+├── README.md           # This file
+├── git_workflow.ps1    # Main script
+├── git_workflow.md     # Documentation
+└── examples/          # Example configurations
+```
+
 ## Cursor Agent Instructions
 If you're a Cursor AI Agent, follow these steps when user requests to "upload it to github":
 
@@ -81,14 +90,11 @@ IMPORTANT NOTES:
 - If you find yourself typing "GitWorkflow" as the repository name, STOP
 - Always ensure you're working in the CURRENT project directory
 - When modifying GitWorkflow itself, ALWAYS increment version in:
-  1. version.txt
-  2. README.md (both title and version history)
-  3. git_workflow.ps1
-  4. Add entry to Version History explaining the change
+  1. README.md (both title and version history)
+  2. git_workflow.ps1
+  3. Add entry to Version History explaining the change
 
-## Usage
-
-### From Command Line
+## Usage Examples
 ```pwsh
 # Initialize new repository
 git_workflow.ps1
@@ -97,7 +103,7 @@ git_workflow.ps1
 git_workflow.ps1 -CommitMessage "Your commit message"
 ```
 
-### From Other Projects
+## Integration Methods
 You can reference this workflow in other projects by either:
 
 1. Symbolic Link (Recommended):
@@ -108,92 +114,11 @@ New-Item -ItemType SymbolicLink -Path ".git_workflow" -Target "path\to\GitWorkfl
 
 2. Git Submodule:
 ```pwsh
-git submodule add https://github.com/YourUsername/GitWorkflow.git .git_workflow
-```
-
-## Project Structure
-```
-GitWorkflow/
-├── README.md           # This file
-├── git_workflow.ps1    # Main script
-├── git_workflow.md     # Documentation
-└── examples/          # Example configurations
+git submodule add https://github.com/ArtyMcLabin/GitWorkflow.git .git_workflow
 ```
 
 ## Versioning Rules
 - New projects start at v0.1
 - Increment minor version for updates (e.g., v1.0 -> v1.1)
 - Increment major version for breaking changes (e.g., v1.9 -> v2.0)
-- Always update version.txt and README.md together
-
-## Installation
-
-1. Clone this repository:
-```pwsh
-git clone https://github.com/YourUsername/GitWorkflow.git
-```
-
-2. Add the tool directory to your PowerShell profile for easy access:
-```pwsh
-# Add this to your PowerShell profile ($PROFILE)
-$env:PATH += ";$HOME\path\to\GitWorkflow"
-```
-
-3. Set your GitHub username (add to PowerShell profile for persistence):
-```pwsh
-$env:GITHUB_USERNAME = "YourUsername"
-```
-
-## Usage
-
-### From Command Line
-```pwsh
-# Initialize new repository
-git_workflow.ps1
-
-# Update existing repository with commit message
-git_workflow.ps1 -CommitMessage "Your commit message"
-```
-
-### From Other Projects
-You can reference this workflow in other projects by either:
-
-1. Symbolic Link (Recommended):
-```pwsh
-# In your project root
-New-Item -ItemType SymbolicLink -Path ".git_workflow" -Target "path\to\GitWorkflow"
-```
-
-2. Git Submodule:
-```pwsh
-git submodule add https://github.com/YourUsername/GitWorkflow.git .git_workflow
-```
-
-## Project Structure
-```
-GitWorkflow/
-├── README.md           # This file
-├── git_workflow.ps1    # Main script
-├── git_workflow.md     # Documentation
-└── examples/          # Example configurations
-```
-
-## Prerequisites
-- PowerShell Core (pwsh)
-- Git
-- GitHub CLI (gh)
-- GitHub account
-
-## Version History
-- v1.7: Fetch license online, removed version.txt
-- v1.6: Added license handling and improved formatting
-- v1.5: Added AI disclaimer to generated project READMEs
-- v1.4: Improved documentation clarity, removed redundant sections
-- v1.3: Standardized on master branch
-- v1.2: Added auto-update feature for submodules
-- v1.1: Added versioning rules and documentation updates
-- v1.0: Initial release
-  - Basic git workflow automation
-  - GitHub integration
-  - Version tracking
-  - Cursor IDE support 
+- Always update README.md and script version together 
