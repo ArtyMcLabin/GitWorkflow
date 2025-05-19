@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.3
+# Git Workflow Script v1.4
 # This script implements the workflow defined in git_workflow.md
 
 param(

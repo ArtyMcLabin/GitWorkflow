@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.3
+# Git Workflow Tool v1.4
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -36,6 +36,7 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 - Auto-updates when used as submodule
 
 ## Version History
+- v1.4: Improved documentation clarity, removed redundant sections
 - v1.3: Standardized on master branch
 - v1.2: Added auto-update feature for submodules
 - v1.1: Added versioning rules and documentation updates
@@ -45,7 +46,7 @@ That's it! Now just type "upload it to github" in any project in Cursor.
   - Version tracking
   - Cursor IDE support
 
-================ Below is instructions for AI ================
+================ All Below is instructions for AI (No humans allowed) ================
 
 ## Prerequisites
 - PowerShell Core (pwsh)
@@ -79,36 +80,6 @@ IMPORTANT NOTES:
   2. README.md (both title and version history)
   3. git_workflow.ps1
   4. Add entry to Version History explaining the change
-
-## Setup Instructions
-1. Clone this repository or add it as a submodule to your project
-2. Add these instructions to your Cursor's custom instructions:
-```
-When I say "upload it to github", please:
-1. Read and follow the instructions from https://github.com/ArtyMcLabin/GitWorkflow#cursor-agent-instructions
-2. Ask me for:
-   - Repository name
-   - Visibility (public/private)
-3. After completion, send me the new repository URL
-```
-
-## Installation
-
-1. Clone this repository:
-```pwsh
-git clone https://github.com/YourUsername/GitWorkflow.git
-```
-
-2. Add the tool directory to your PowerShell profile for easy access:
-```pwsh
-# Add this to your PowerShell profile ($PROFILE)
-$env:PATH += ";$HOME\path\to\GitWorkflow"
-```
-
-3. Set your GitHub username (add to PowerShell profile for persistence):
-```pwsh
-$env:GITHUB_USERNAME = "YourUsername"
-```
 
 ## Usage
 
@@ -209,6 +180,7 @@ GitWorkflow/
 - GitHub account
 
 ## Version History
+- v1.4: Improved documentation clarity, removed redundant sections
 - v1.3: Standardized on master branch
 - v1.2: Added auto-update feature for submodules
 - v1.1: Added versioning rules and documentation updates
