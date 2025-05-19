@@ -1,0 +1,22 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Dual Update Responsibility
+
+When modifying this project, remember it has two roles:
+1. As a standalone tool (GitWorkflow repository itself)
+2. As a submodule in other projects
+
+Therefore, every change must:
+1. Update the tool's own functionality (in this repository)
+2. Ensure compatibility with projects using it as a submodule
+3. Test both aspects before committing changes
+
+Example:
+- When adding a new feature: Add the feature code AND update submodule integration instructions
+- When changing existing feature: Update the code AND ensure all submodule references still work
+
+
+- When updating documentation: Cover both standalone usage AND submodule usage
