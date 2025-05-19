@@ -34,7 +34,7 @@ If you're a Cursor AI Agent, follow these steps when user requests to "upload it
 6. Initialize repository if needed:
    - Create README.md with project description
    - Initialize git: `git init`
-   - Set main as default branch: `git branch -M main`
+   - Set master as default branch: `git branch -M master`
 7. Use the workflow script: `.git_workflow/git_workflow.ps1`
 8. After successful push, provide the repository URL to the user
 
@@ -43,6 +43,11 @@ IMPORTANT NOTES:
 - GitWorkflow is already on GitHub - you're using it as a tool
 - If you find yourself typing "GitWorkflow" as the repository name, STOP
 - Always ensure you're working in the CURRENT project directory
+- When modifying GitWorkflow itself, ALWAYS increment version in:
+  1. version.txt
+  2. README.md (both title and version history)
+  3. git_workflow.ps1
+  4. Add entry to Version History explaining the change
 
 ## Features
 - Automatic repository initialization
