@@ -1,0 +1,76 @@
+# Git Workflow Tool v1.0
+
+A standardized git workflow automation tool for managing multiple projects.
+
+## Features
+- Automatic repository initialization
+- Standardized file structure
+- Duplicate repository prevention
+- Version tracking
+- GitHub integration
+- Cursor IDE support
+
+## Installation
+
+1. Clone this repository:
+```pwsh
+git clone https://github.com/YourUsername/GitWorkflow.git
+```
+
+2. Add the tool directory to your PowerShell profile for easy access:
+```pwsh
+# Add this to your PowerShell profile ($PROFILE)
+$env:PATH += ";$HOME\path\to\GitWorkflow"
+```
+
+3. Set your GitHub username (add to PowerShell profile for persistence):
+```pwsh
+$env:GITHUB_USERNAME = "YourUsername"
+```
+
+## Usage
+
+### From Command Line
+```pwsh
+# Initialize new repository
+git_workflow.ps1
+
+# Update existing repository with commit message
+git_workflow.ps1 -CommitMessage "Your commit message"
+```
+
+### From Other Projects
+You can reference this workflow in other projects by either:
+
+1. Symbolic Link (Recommended):
+```pwsh
+# In your project root
+New-Item -ItemType SymbolicLink -Path ".git_workflow" -Target "path\to\GitWorkflow"
+```
+
+2. Git Submodule:
+```pwsh
+git submodule add https://github.com/YourUsername/GitWorkflow.git .git_workflow
+```
+
+## Project Structure
+```
+GitWorkflow/
+├── README.md           # This file
+├── git_workflow.ps1    # Main script
+├── git_workflow.md     # Documentation
+└── examples/          # Example configurations
+```
+
+## Prerequisites
+- PowerShell Core (pwsh)
+- Git
+- GitHub CLI (gh)
+- GitHub account
+
+## Version History
+- v1.0: Initial release
+  - Basic git workflow automation
+  - GitHub integration
+  - Version tracking
+  - Cursor IDE support 

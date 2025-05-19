@@ -1,0 +1,166 @@
+#!/usr/bin/env pwsh
+# Git Workflow Script v1.0
+# This script implements the workflow defined in git_workflow.md
+
+param(
+    [Parameter()]
+    [string]$CommitMessage = ""
+)
+
+function Initialize-GitRepo {
+    # Check if git is already initialized
+    if (Test-Path .git) {
+        Write-Host "Git repository already initialized"
+        git remote -v  # Display remote info if exists
+        return $false
+    }
+
+    # Check repository name from current directory
+    $script:repoName = Split-Path -Leaf (Get-Location)
+
+    # Check if repository exists on GitHub
+    gh repo view $env:GITHUB_USERNAME/$repoName 2>$null
+    if ($?) {
+        Write-Host "Repository already exists on GitHub: $repoName"
+        return $false
+    }
+
+    # Initialize git
+    git init
+
+    # Create standard files if they don't exist
+    if (!(Test-Path README.md)) {
+        New-Item README.md
+    }
+    if (!(Test-Path .gitignore)) {
+        New-Item .gitignore
+    }
+
+    # Add standard .gitignore contents
+    @'
+# Windows system files
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.venv
+venv/
+ENV/
+'@ | Out-File -FilePath .gitignore -Encoding utf8
+
+    return $true
+}
+
+function Update-GithubInfo {
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $repoName = Split-Path -Leaf (Get-Location)
+    
+    $githubInfo = @{
+        repository_name = $repoName
+        last_push = $timestamp
+        github_url = "https://github.com/$env:GITHUB_USERNAME/$repoName"
+    }
+
+    $githubInfo | ConvertTo-Json | Out-File -FilePath .github_info -Encoding utf8
+}
+
+function Initialize-VersionFile {
+    "v1.0" | Out-File -FilePath version.txt -Encoding utf8
+}
+
+function Push-ToGithub {
+    param(
+        [string]$CommitMessage
+    )
+
+    # Stage all changes
+    git add .
+
+    # Get current timestamp for commit message
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
+    
+    # Use provided commit message or default to timestamp
+    if ([string]::IsNullOrEmpty($CommitMessage)) {
+        $CommitMessage = "Update $timestamp: Regular update"
+    }
+
+    # Commit with message
+    git commit -m $CommitMessage
+
+    # Push to GitHub
+    git push origin main
+}
+
+# Main workflow
+try {
+    # Check prerequisites
+    if ([string]::IsNullOrEmpty($env:GITHUB_USERNAME)) {
+        throw "GitHub username not set. Please set `$env:GITHUB_USERNAME first."
+    }
+
+    # Initialize if needed
+    $isNewRepo = Initialize-GitRepo
+    if ($isNewRepo) {
+        Write-Host "Initializing new repository..."
+        
+        # Create version and github info files
+        Initialize-VersionFile
+        Update-GithubInfo
+
+        # Initial commit
+        git add .
+        git commit -m "Initial commit: Project structure setup"
+
+        # Create GitHub repository and push
+        gh repo create $repoName --private --source=. --remote=origin
+        git push -u origin main
+        
+        Write-Host "Repository initialized and pushed to GitHub successfully!"
+    } else {
+        # Update existing repository
+        Write-Host "Updating existing repository..."
+        Push-ToGithub -CommitMessage $CommitMessage
+        Update-GithubInfo
+        Write-Host "Repository updated and pushed to GitHub successfully!"
+    }
+} catch {
+    Write-Error "Error occurred: $_"
+    exit 1
+} 
