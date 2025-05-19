@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.0
+# Git Workflow Script v1.1
 # This script implements the workflow defined in git_workflow.md
 
 param(
@@ -102,7 +102,8 @@ function Update-GithubInfo {
 }
 
 function Initialize-VersionFile {
-    "v1.0" | Out-File -FilePath version.txt -Encoding utf8
+    # Start with v0.1 for new projects
+    "v0.1" | Out-File -FilePath version.txt -Encoding utf8
 }
 
 function Push-ToGithub {
