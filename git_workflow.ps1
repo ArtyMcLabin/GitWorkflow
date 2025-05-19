@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.9
+# Git Workflow Script v1.10
 # This script implements the workflow defined in README.md
 
 param(
@@ -224,9 +224,27 @@ function Add-License {
     }
 }
 
+function Remove-UnnecessaryFiles {
+    # List of files to always remove
+    $filesToRemove = @(
+        'desktop.ini',
+        '.github_info',  # We don't need this anymore as README contains all info
+        'Thumbs.db',
+        '.DS_Store'      # For Mac users
+    )
+
+    foreach ($file in $filesToRemove) {
+        if (Test-Path $file) {
+            Remove-Item $file -Force
+            Write-Host "Removed unnecessary file: $file"
+        }
+    }
+}
+
 # Main execution
 try {
     Update-WorkflowTool
+    Remove-UnnecessaryFiles
     $isNewRepo = Initialize-GitRepo
     if ($isNewRepo) {
         Write-Host "Creating new repository on GitHub..."
