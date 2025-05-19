@@ -53,7 +53,11 @@ That's it! Now just type "upload it to github" in any project in Cursor.
   - Version tracking
   - Cursor IDE support
 
-================ All Below is instructions for AI (No humans allowed) ================
+---
+
+## 🤖 AI Agent Instructions
+
+> The following sections are for AI agents only. Human users should refer to the sections above.
 
 ## Prerequisites
 - PowerShell Core (pwsh)
