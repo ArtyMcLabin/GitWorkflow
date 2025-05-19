@@ -11,6 +11,17 @@ param(
     [string]$Visibility = "private"
 )
 
+function Update-WorkflowTool {
+    # Check if we're running from a submodule
+    $workflowPath = Split-Path -Parent $PSCommandPath
+    if (Test-Path (Join-Path $workflowPath ".git")) {
+        Write-Host "Checking for GitWorkflow updates..."
+        Push-Location $workflowPath
+        git submodule update --remote
+        Pop-Location
+    }
+}
+
 function Initialize-GitRepo {
     # Check if git is already initialized
     if (Test-Path .git) {
@@ -152,6 +163,9 @@ function Push-ToGithub {
 
 # Main workflow
 try {
+    # Update workflow tool first
+    Update-WorkflowTool
+
     # Check prerequisites
     if ([string]::IsNullOrEmpty($env:GITHUB_USERNAME)) {
         throw "GitHub username not set. Please set `$env:GITHUB_USERNAME first."

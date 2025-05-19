@@ -24,18 +24,19 @@ When I say "upload it to github", please:
 ## Cursor Agent Instructions
 If you're a Cursor AI Agent, follow these steps when user requests to "upload it to github":
 
-1. STOP AND READ CAREFULLY: You are about to set up git for the CURRENT project, NOT GitWorkflow itself
-2. Ask the user:
+1. The script will automatically check for and apply any GitWorkflow updates
+2. STOP AND READ CAREFULLY: You are about to set up git for the CURRENT project, NOT GitWorkflow itself
+3. Ask the user:
    - "What name would you like to use for the GitHub repository?"
    - "Should the repository be public or private?"
-3. Check if GitWorkflow is already added as a submodule: `git submodule status`
-4. If not, add it: `git submodule add https://github.com/ArtyMcLabin/GitWorkflow .git_workflow`
-5. Initialize repository if needed:
+4. Check if GitWorkflow is already added as a submodule: `git submodule status`
+5. If not, add it: `git submodule add https://github.com/ArtyMcLabin/GitWorkflow .git_workflow`
+6. Initialize repository if needed:
    - Create README.md with project description
    - Initialize git: `git init`
    - Set main as default branch: `git branch -M main`
-6. Use the workflow script: `.git_workflow/git_workflow.ps1`
-7. After successful push, provide the repository URL to the user
+7. Use the workflow script: `.git_workflow/git_workflow.ps1`
+8. After successful push, provide the repository URL to the user
 
 IMPORTANT NOTES:
 - NEVER cd into GitWorkflow directory
@@ -50,6 +51,7 @@ IMPORTANT NOTES:
 - Version tracking
 - GitHub integration
 - Cursor IDE support
+- Auto-updates when used as submodule
 
 ## Versioning Rules
 - New projects start at v0.1
