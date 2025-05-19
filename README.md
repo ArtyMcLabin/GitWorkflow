@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.7
+# Git Workflow Tool v1.9
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -37,6 +37,8 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 - Auto-updates when used as submodule
 
 ## Version History
+- v1.9: Removed deprecated files (git_workflow.md and examples directory)
+- v1.8: Enhanced error handling and submodule updates
 - v1.7: Fetch license online, removed version.txt
 - v1.6: Added license handling and improved formatting
 - v1.5: Added AI disclaimer to generated project READMEs
@@ -60,10 +62,10 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 ## Project Structure
 ```
 GitWorkflow/
-├── README.md           # This file
+├── README.md           # Documentation and instructions
 ├── git_workflow.ps1    # Main script
-├── git_workflow.md     # Documentation
-└── examples/          # Example configurations
+├── LICENSE            # MIT License
+└── .github_info       # Repository metadata
 ```
 
 ## Cursor Agent Instructions

@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.7
-# This script implements the workflow defined in git_workflow.md
+# Git Workflow Script v1.9
+# This script implements the workflow defined in README.md
 
 param(
     [Parameter()]
@@ -19,9 +19,23 @@ function Update-WorkflowTool {
     $workflowPath = Split-Path -Parent $PSCommandPath
     if (Test-Path (Join-Path $workflowPath ".git")) {
         Write-Host "Checking for GitWorkflow updates..."
-        Push-Location $workflowPath
-        git submodule update --remote
-        Pop-Location
+        try {
+            Push-Location $workflowPath
+            $currentCommit = git rev-parse HEAD
+            git submodule update --remote --merge
+            $newCommit = git rev-parse HEAD
+            if ($currentCommit -ne $newCommit) {
+                Write-Host "Updated GitWorkflow from $currentCommit to $newCommit"
+                Write-Host "Changes:"
+                git log --oneline $currentCommit..$newCommit
+            } else {
+                Write-Host "GitWorkflow is already up to date"
+            }
+        } catch {
+            Write-Error "Failed to update GitWorkflow: $_"
+        } finally {
+            Pop-Location
+        }
     }
 }
 
@@ -144,33 +158,41 @@ function Update-GithubInfo {
     $githubInfo | ConvertTo-Json | Out-File -FilePath .github_info -Encoding utf8
 }
 
-function Initialize-VersionFile {
-    # Start with v0.1 for new projects
-    "v0.1" | Out-File -FilePath version.txt -Encoding utf8
-}
-
 function Push-ToGithub {
     param(
         [string]$CommitMessage,
         [string]$Visibility
     )
 
-    # Stage all changes
-    git add .
+    try {
+        # Stage all changes
+        git add .
 
-    # Get current timestamp for commit message
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
-    
-    # Use provided commit message or default to timestamp
-    if ([string]::IsNullOrEmpty($CommitMessage)) {
-        $CommitMessage = "Update ${timestamp}: Regular update"
+        # Get current timestamp for commit message
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
+        
+        # Use provided commit message or default to timestamp
+        if ([string]::IsNullOrEmpty($CommitMessage)) {
+            $CommitMessage = "Update ${timestamp}: Regular update"
+        }
+
+        # Check if there are changes to commit
+        $status = git status --porcelain
+        if ([string]::IsNullOrEmpty($status)) {
+            Write-Host "No changes to commit"
+            return
+        }
+
+        # Commit with message
+        git commit -m $CommitMessage
+
+        # Push to GitHub
+        git push -u origin master
+        Write-Host "Successfully pushed changes to GitHub"
+    } catch {
+        Write-Error "Failed to push to GitHub: $_"
+        throw
     }
-
-    # Commit with message
-    git commit -m $CommitMessage
-
-    # Push to GitHub
-    git push -u origin master
 }
 
 function Add-License {
@@ -202,46 +224,18 @@ function Add-License {
     }
 }
 
-# Main workflow
+# Main execution
 try {
-    # Update workflow tool first
     Update-WorkflowTool
-
-    # Check prerequisites
-    if ([string]::IsNullOrEmpty($env:GITHUB_USERNAME)) {
-        throw "GitHub username not set. Please set `$env:GITHUB_USERNAME first."
-    }
-
-    # Initialize if needed
     $isNewRepo = Initialize-GitRepo
     if ($isNewRepo) {
-        Write-Host "Initializing new repository..."
-        
-        # Create version and github info files
-        Initialize-VersionFile
-        Update-GithubInfo
-
-        # Initial commit
-        git add .
-        git commit -m "Initial commit: Project structure setup"
-
-        # Create GitHub repository and push
-        $visibilityFlag = if ($Visibility -eq "private") { "--private" } else { "--public" }
-        gh repo create $repoName $visibilityFlag --source=. --remote=origin
-        git push -u origin master
-        
-        # Display repository URL
-        $repoUrl = "https://github.com/$env:GITHUB_USERNAME/$repoName"
-        Write-Host "`nRepository created successfully!"
-        Write-Host "URL: $repoUrl"
-    } else {
-        # Update existing repository
-        Write-Host "Updating existing repository..."
-        Push-ToGithub -CommitMessage $CommitMessage -Visibility $Visibility
-        Update-GithubInfo
-        Write-Host "Repository updated and pushed to GitHub successfully!"
+        Write-Host "Creating new repository on GitHub..."
+        gh repo create $repoName --$Visibility
     }
+    Update-GithubInfo
+    Push-ToGithub -CommitMessage $CommitMessage -Visibility $Visibility
+    Write-Host "Git workflow completed successfully"
 } catch {
-    Write-Error "Error occurred: $_"
+    Write-Error "Git workflow failed: $_"
     exit 1
 } 
