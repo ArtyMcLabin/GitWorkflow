@@ -47,6 +47,11 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 
 ================ Below is instructions for AI ================
 
+## Prerequisites
+- PowerShell Core (pwsh)
+- Git
+- GitHub CLI (gh)
+
 ## Cursor Agent Instructions
 If you're a Cursor AI Agent, follow these steps when user requests to "upload it to github":
 
@@ -138,12 +143,6 @@ GitWorkflow/
 ├── git_workflow.md     # Documentation
 └── examples/          # Example configurations
 ```
-
-## Prerequisites
-- PowerShell Core (pwsh)
-- Git
-- GitHub CLI (gh)
-- GitHub account
 
 ## Versioning Rules
 - New projects start at v0.1
