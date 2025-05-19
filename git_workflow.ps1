@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.10
+# Git Workflow Script v1.11
 # This script implements the workflow defined in README.md
 
 param(
