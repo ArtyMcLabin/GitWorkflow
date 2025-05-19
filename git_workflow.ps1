@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.5
+# Git Workflow Script v1.6
 # This script implements the workflow defined in git_workflow.md
 
 param(
@@ -8,7 +8,10 @@ param(
     
     [Parameter()]
     [ValidateSet("public", "private")]
-    [string]$Visibility = "private"
+    [string]$Visibility = "private",
+
+    [Parameter()]
+    [string]$License = "MIT"
 )
 
 function Update-WorkflowTool {
@@ -64,6 +67,9 @@ Describe installation steps here.
 
 ## Usage
 Describe how to use your project.
+
+## License
+This project is licensed under the $License License - see the [LICENSE](LICENSE) file for details.
 "@ | Out-File -FilePath README.md -Encoding utf8
     }
     if (!(Test-Path .gitignore)) {
@@ -119,6 +125,9 @@ venv/
 ENV/
 '@ | Out-File -FilePath .gitignore -Encoding utf8
 
+    # Add license file
+    Add-License -LicenseType $License -RepoOwner $env:GITHUB_USERNAME
+
     return $true
 }
 
@@ -162,6 +171,47 @@ function Push-ToGithub {
 
     # Push to GitHub
     git push -u origin master
+}
+
+function Add-License {
+    param(
+        [string]$LicenseType,
+        [string]$RepoOwner
+    )
+
+    $year = Get-Date -Format "yyyy"
+    
+    switch ($LicenseType.ToUpper()) {
+        "MIT" {
+            @"
+MIT License
+
+Copyright (c) $year $RepoOwner
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"@ | Out-File -FilePath LICENSE -Encoding utf8
+        }
+        default {
+            Write-Host "License type $LicenseType not supported yet. Using MIT license."
+            Add-License -LicenseType "MIT" -RepoOwner $RepoOwner
+        }
+    }
 }
 
 # Main workflow
