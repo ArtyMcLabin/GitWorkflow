@@ -40,9 +40,9 @@ function Initialize-GitRepo {
         return $false
     }
 
-    # Initialize git and set main branch
+    # Initialize git and set master branch
     git init
-    git branch -M main
+    git branch -M master
 
     # Create standard files if they don't exist
     if (!(Test-Path README.md)) {
@@ -158,7 +158,7 @@ function Push-ToGithub {
     git commit -m $CommitMessage
 
     # Push to GitHub
-    git push -u origin main
+    git push -u origin master
 }
 
 # Main workflow
@@ -187,7 +187,7 @@ try {
         # Create GitHub repository and push
         $visibilityFlag = if ($Visibility -eq "private") { "--private" } else { "--public" }
         gh repo create $repoName $visibilityFlag --source=. --remote=origin
-        git push -u origin main
+        git push -u origin master
         
         # Display repository URL
         $repoUrl = "https://github.com/$env:GITHUB_USERNAME/$repoName"
