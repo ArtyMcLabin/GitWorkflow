@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.12
+# Git Workflow Tool v1.14
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -32,6 +32,8 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 - Auto-updates when used as submodule
 
 ## Version History
+- v1.14: Fixed repository URL display in creation feedback
+- v1.13: Added detailed repository creation feedback requirements
 - v1.12: Simplified Cursor settings instruction
 - v1.11: Improved AI instructions section formatting in README
 - v1.10: Added automatic cleanup of unnecessary files (desktop.ini, .github_info)
@@ -86,7 +88,16 @@ If you're a Cursor AI Agent, follow these steps when user requests to "upload it
    - Initialize git: `git init`
    - Set master as default branch: `git branch -M master`
 7. Use the workflow script: `.git_workflow/git_workflow.ps1`
-8. After successful push, provide the repository URL to the user
+8. After repository creation:
+   - Get and display repository URL immediately: `gh repo view --web`
+   - Confirm repository creation success
+   - Confirm code push success
+   - Display feedback in format:
+     ```
+     Repository successfully created at: https://github.com/username/repo-name
+     ✓ Repository creation successful
+     ✓ Code pushed successfully
+     ```
 
 IMPORTANT NOTES:
 - NEVER cd into GitWorkflow directory

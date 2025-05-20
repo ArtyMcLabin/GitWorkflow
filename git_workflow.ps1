@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.12
+# Git Workflow Script v1.14
 # This script implements the workflow defined in README.md
 
 param(
@@ -249,10 +249,14 @@ try {
     if ($isNewRepo) {
         Write-Host "Creating new repository on GitHub..."
         gh repo create $repoName --$Visibility
+        $repoUrl = "https://github.com/$env:GITHUB_USERNAME/$repoName"
+        Write-Host "`nRepository successfully created at: $repoUrl"
+        Write-Host "✓ Repository creation successful"
     }
     Update-GithubInfo
     Push-ToGithub -CommitMessage $CommitMessage -Visibility $Visibility
-    Write-Host "Git workflow completed successfully"
+    Write-Host "✓ Code pushed successfully"
+    Write-Host "`nGit workflow completed successfully"
 } catch {
     Write-Error "Git workflow failed: $_"
     exit 1
