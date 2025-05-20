@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.18
+# Git Workflow Script v1.19
 # This script implements the workflow defined in README.md
 
 param(
@@ -23,7 +23,10 @@ param(
     [string]$IssueBody = "",
 
     [Parameter()]
-    [string[]]$IssueLabels = @()
+    [string[]]$IssueLabels = @(),
+
+    [Parameter()]
+    [string]$IssueRepo = ""  # Format: "owner/repo" or empty for current repo
 )
 
 function Update-WorkflowTool {
@@ -285,7 +288,10 @@ function New-FormattedIssue {
         [string]$Body = "",
         
         [Parameter()]
-        [string[]]$Labels = @()
+        [string[]]$Labels = @(),
+
+        [Parameter()]
+        [string]$TargetRepo = ""
     )
 
     # Validate inputs
@@ -311,10 +317,19 @@ function New-FormattedIssue {
         $labelArgs = "--label", ($Labels -join ",")
     }
 
-    if ([string]::IsNullOrWhiteSpace($formattedBody)) {
-        gh issue create --title $Title @labelArgs
+    # Build command arguments
+    $ghArgs = @("issue", "create")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $ghArgs += "-R", $TargetRepo
+        Write-Host "Creating issue in repository: $TargetRepo"
     } else {
-        $formattedBody | gh issue create --title $Title @labelArgs --body-file -
+        Write-Host "Creating issue in current repository"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($formattedBody)) {
+        & gh @ghArgs --title $Title @labelArgs
+    } else {
+        $formattedBody | & gh @ghArgs --title $Title @labelArgs --body-file -
     }
 
     Write-Host "✓ Issue created successfully: $Title"
@@ -327,7 +342,7 @@ try {
         if ([string]::IsNullOrWhiteSpace($IssueTitle)) {
             throw "Issue title is required when creating an issue"
         }
-        New-FormattedIssue -Title $IssueTitle -Body $IssueBody -Labels $IssueLabels
+        New-FormattedIssue -Title $IssueTitle -Body $IssueBody -Labels $IssueLabels -TargetRepo $IssueRepo
         return
     }
 
