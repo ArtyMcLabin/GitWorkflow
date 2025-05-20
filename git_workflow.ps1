@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.19
+# Git Workflow Script v1.20
 # This script implements the workflow defined in README.md
 
 param(
@@ -26,7 +26,19 @@ param(
     [string[]]$IssueLabels = @(),
 
     [Parameter()]
-    [string]$IssueRepo = ""  # Format: "owner/repo" or empty for current repo
+    [string]$IssueRepo = "",  # Format: "owner/repo" or empty for current repo
+
+    [Parameter()]
+    [switch]$ApproveIssue,
+
+    [Parameter()]
+    [string]$IssueNumber = "",
+
+    [Parameter()]
+    [switch]$CloseIssue,
+
+    [Parameter()]
+    [string]$Implementation = ""  # Commit hash or PR link for issue resolution
 )
 
 function Update-WorkflowTool {
@@ -296,14 +308,19 @@ function New-FormattedIssue {
 
     # Validate inputs
     if ([string]::IsNullOrWhiteSpace($Title)) {
-        throw "Issue title cannot be empty"
+        throw "Issue title is required"
     }
 
-    # Format the body into a markdown table if not empty
-    $formattedBody = ""
+    # Add standard AI-generated label
+    $Labels += "ai-generated"
+
+    # Format the body with standard GitWorkflow header
+    $formattedBody = "🤖 GitWorkflow: This Issue/FeatureRequest was generated and submitted by LLM, according to GitWorkflow standard`n`n"
+    
+    # Add the original body in table format if not empty
     if (![string]::IsNullOrWhiteSpace($Body)) {
         $lines = $Body -split "`n"
-        $formattedBody = "| Description |`n|-------------|`n"
+        $formattedBody += "| Description |`n|-------------|`n"
         foreach ($line in $lines) {
             # Escape pipe characters and properly format newlines
             $escapedLine = $line.Replace("|", "\|").Replace("`n", "<br>")
@@ -335,14 +352,121 @@ function New-FormattedIssue {
     Write-Host "✓ Issue created successfully: $Title"
 }
 
+function Approve-Issue {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$IssueNumber,
+        
+        [Parameter()]
+        [string]$TargetRepo = ""
+    )
+
+    # Build command arguments
+    $ghArgs = @("issue", "comment")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $ghArgs += "-R", $TargetRepo
+    }
+
+    # Get current user
+    $username = (gh api user --jq '.login')
+
+    # Format approval message
+    $approvalMessage = @"
+✅ Hooman Approval
+By: $username
+Status: Approved for implementation
+Time: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
+"@
+
+    # Add comment and label
+    $ghArgs += $IssueNumber, "--body", $approvalMessage
+    & gh @ghArgs
+
+    # Add human-approved label
+    $labelArgs = @("issue", "edit")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $labelArgs += "-R", $TargetRepo
+    }
+    $labelArgs += $IssueNumber, "--add-label", "human-approved"
+    & gh @labelArgs
+
+    Write-Host "✓ Issue #$IssueNumber approved successfully"
+}
+
+function Close-ResolvedIssue {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$IssueNumber,
+        
+        [Parameter()]
+        [string]$Implementation = "",
+        
+        [Parameter()]
+        [string]$TargetRepo = ""
+    )
+
+    # Build command arguments
+    $ghArgs = @("issue", "comment")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $ghArgs += "-R", $TargetRepo
+    }
+
+    # Format resolution message
+    $resolutionMessage = @"
+🤖 Issue Resolution by AI
+Status: Implemented
+$(if (![string]::IsNullOrWhiteSpace($Implementation)) { "Implementation: $Implementation`n" })
+
+If this doesn't fully resolve your issue:
+- Comment below for further assistance
+- Add label 'needs-human-review' if human oversight is needed
+"@
+
+    # Add comment and labels
+    $ghArgs += $IssueNumber, "--body", $resolutionMessage
+    & gh @ghArgs
+
+    # Add ai-implemented label and close the issue
+    $labelArgs = @("issue", "edit")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $labelArgs += "-R", $TargetRepo
+    }
+    $labelArgs += $IssueNumber, "--add-label", "ai-implemented"
+    & gh @labelArgs
+
+    # Close the issue
+    $closeArgs = @("issue", "close")
+    if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
+        $closeArgs += "-R", $TargetRepo
+    }
+    $closeArgs += $IssueNumber
+    & gh @closeArgs
+
+    Write-Host "✓ Issue #$IssueNumber closed successfully"
+}
+
 # Main execution
 try {
-    # Handle issue creation if requested
+    # Handle issue operations
     if ($CreateIssue) {
         if ([string]::IsNullOrWhiteSpace($IssueTitle)) {
             throw "Issue title is required when creating an issue"
         }
         New-FormattedIssue -Title $IssueTitle -Body $IssueBody -Labels $IssueLabels -TargetRepo $IssueRepo
+        return
+    }
+    elseif ($ApproveIssue) {
+        if ([string]::IsNullOrWhiteSpace($IssueNumber)) {
+            throw "Issue number is required for approval"
+        }
+        Approve-Issue -IssueNumber $IssueNumber -TargetRepo $IssueRepo
+        return
+    }
+    elseif ($CloseIssue) {
+        if ([string]::IsNullOrWhiteSpace($IssueNumber)) {
+            throw "Issue number is required for closing"
+        }
+        Close-ResolvedIssue -IssueNumber $IssueNumber -Implementation $Implementation -TargetRepo $IssueRepo
         return
     }
 

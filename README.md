@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.19
+# Git Workflow Tool v1.20
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -72,6 +72,53 @@ GitWorkflow provides a standardized way to create well-formatted issues in any G
    - In any repository with a symbolic link to GitWorkflow
    - Can create issues in ANY public GitHub repository (with proper permissions)
 
+### Issue Management Workflow
+GitWorkflow provides a standardized way to manage issues across GitHub repositories:
+
+1. Issue Creation Parameters:
+   - `-CreateIssue`: Switch to enable issue creation mode
+   - `-IssueTitle`: Title of the issue (required)
+   - `-IssueBody`: Description of the issue (optional)
+   - `-IssueLabels`: Array of labels to apply (optional)
+   - `-IssueRepo`: Target repository in format "owner/repo" (optional, defaults to current repo)
+
+2. Issue Approval Parameters:
+   - `-ApproveIssue`: Switch to approve an issue
+   - `-IssueNumber`: Number of the issue to approve
+   - `-IssueRepo`: Target repository (if not current)
+
+3. Issue Resolution Parameters:
+   - `-CloseIssue`: Switch to close an issue as resolved
+   - `-IssueNumber`: Number of the issue to close
+   - `-Implementation`: Link to implementation (commit/PR)
+   - `-IssueRepo`: Target repository (if not current)
+
+4. Standard Labels:
+   - `ai-generated`: Automatically added to issues created by GitWorkflow
+   - `human-approved`: Added when a human approves an issue
+   - `ai-implemented`: Added when AI resolves and closes an issue
+   - `needs-human-review`: Can be added by users if human review needed
+
+5. Usage Examples:
+   ```pwsh
+   # Create issue in current repository
+   git_workflow.ps1 -CreateIssue -IssueTitle "Bug Report" -IssueBody "Description of the bug"
+
+   # Create issue in another repository
+   git_workflow.ps1 -CreateIssue -IssueTitle "Feature Request" -IssueBody "New feature needed" -IssueRepo "owner/repo"
+
+   # Approve an issue
+   git_workflow.ps1 -ApproveIssue -IssueNumber "42" -IssueRepo "owner/repo"
+
+   # Close a resolved issue
+   git_workflow.ps1 -CloseIssue -IssueNumber "42" -Implementation "https://github.com/owner/repo/pull/43"
+   ```
+
+6. Standard Messages:
+   - Issue Creation: Includes AI attribution header
+   - Human Approval: Includes approver name and timestamp
+   - Issue Resolution: Includes implementation details and feedback instructions
+
 ## Project Rules
 1. Git Operations Rule:
    - ALWAYS use GitWorkflow (`git_workflow.ps1`) for ANY git operations
@@ -83,6 +130,7 @@ GitWorkflow provides a standardized way to create well-formatted issues in any G
      d) If not - wait for implementation in GitWorkflow before proceeding
 
 ## Version History
+- v1.20: Enhanced issue management with standard messages, labels, and workflows
 - v1.19: Added cross-repository issue creation support
 - v1.18: Fixed repository messages, improved file removal, added standardized issue creation
 - v1.17: Added instructions for integrating GitWorkflow into existing GitHub projects
