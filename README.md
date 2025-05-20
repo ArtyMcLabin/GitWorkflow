@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.16
+# Git Workflow Tool v1.17
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -42,6 +42,7 @@ That's it! Now just type "upload it to github" in any project in Cursor.
      d) If not - wait for implementation in GitWorkflow before proceeding
 
 ## Version History
+- v1.17: Fixed repository messages, improved file removal, added standardized issue creation
 - v1.16: Updated Project Rules to use generic "Human" reference and allow explicit overrides
 - v1.15: Added Project Rules section with strict GitWorkflow usage rule
 - v1.14: Fixed repository URL display in creation feedback
@@ -128,6 +129,12 @@ git_workflow.ps1
 
 # Update existing repository with commit message
 git_workflow.ps1 -CommitMessage "Your commit message"
+
+# Create a new issue
+git_workflow.ps1 -CreateIssue -IssueTitle "Bug Report" -IssueBody "Description of the bug" -IssueLabels @("bug")
+
+# Remove a file (properly removes from both git and filesystem)
+git_workflow.ps1 -RemoveFile "path/to/file"
 ```
 
 ## Integration Methods
@@ -143,6 +150,27 @@ New-Item -ItemType SymbolicLink -Path ".git_workflow" -Target "path\to\GitWorkfl
 ```pwsh
 git submodule add https://github.com/ArtyMcLabin/GitWorkflow.git .git_workflow
 ```
+
+## Adding GitWorkflow to Existing GitHub Projects
+If you're an AI Agent integrating GitWorkflow into an existing GitHub project, follow these steps:
+
+1. First, verify you're in the correct project directory (not GitWorkflow itself)
+2. Add GitWorkflow as a submodule:
+   ```pwsh
+   git submodule add https://github.com/ArtyMcLabin/GitWorkflow.git .git_workflow
+   ```
+3. Add these rules to the project's README.md under "Development Guidelines" or similar section:
+   ```markdown
+   ## Git Workflow
+   This project uses GitWorkflow for standardized git operations.
+   - ALWAYS use `.git_workflow/git_workflow.ps1` for git operations
+   - NEVER use raw git commands unless explicitly approved
+   ```
+4. Create initial commit with GitWorkflow integration:
+   ```pwsh
+   .git_workflow/git_workflow.ps1 -CommitMessage "Added GitWorkflow integration"
+   ```
+5. From this point forward, use `git_workflow.ps1` for all git operations
 
 ## Versioning Rules
 - New projects start at v0.1

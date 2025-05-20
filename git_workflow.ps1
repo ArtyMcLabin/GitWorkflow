@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.16
+# Git Workflow Script v1.17
 # This script implements the workflow defined in README.md
 
 param(
@@ -11,7 +11,19 @@ param(
     [string]$Visibility = "private",
 
     [Parameter()]
-    [string]$License = "MIT"
+    [string]$License = "MIT",
+
+    [Parameter()]
+    [switch]$CreateIssue,
+
+    [Parameter()]
+    [string]$IssueTitle = "",
+
+    [Parameter()]
+    [string]$IssueBody = "",
+
+    [Parameter()]
+    [string[]]$IssueLabels = @()
 )
 
 function Update-WorkflowTool {
@@ -235,24 +247,106 @@ function Remove-UnnecessaryFiles {
 
     foreach ($file in $filesToRemove) {
         if (Test-Path $file) {
+            # Remove from filesystem
             Remove-Item $file -Force
+            # Remove from git tracking if it was tracked
+            git rm -f --cached $file 2>$null
             Write-Host "Removed unnecessary file: $file"
         }
     }
 }
 
+# Add new function for general file removal
+function Remove-GitFile {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$FilePath
+    )
+
+    if (Test-Path $FilePath) {
+        # Remove from filesystem
+        Remove-Item $FilePath -Force
+        # Remove from git tracking if it was tracked
+        git rm -f --cached $FilePath 2>$null
+        Write-Host "Removed file: $FilePath"
+        return $true
+    } else {
+        Write-Host "File not found: $FilePath"
+        return $false
+    }
+}
+
+function New-FormattedIssue {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Title,
+        
+        [Parameter()]
+        [string]$Body = "",
+        
+        [Parameter()]
+        [string[]]$Labels = @()
+    )
+
+    # Validate inputs
+    if ([string]::IsNullOrWhiteSpace($Title)) {
+        throw "Issue title cannot be empty"
+    }
+
+    # Format the body into a markdown table if not empty
+    $formattedBody = ""
+    if (![string]::IsNullOrWhiteSpace($Body)) {
+        $lines = $Body -split "`n"
+        $formattedBody = "| Description |`n|-------------|`n"
+        foreach ($line in $lines) {
+            # Escape pipe characters and properly format newlines
+            $escapedLine = $line.Replace("|", "\|").Replace("`n", "<br>")
+            $formattedBody += "| $escapedLine |`n"
+        }
+    }
+
+    # Create the issue
+    $labelArgs = @()
+    if ($Labels.Count -gt 0) {
+        $labelArgs = "--label", ($Labels -join ",")
+    }
+
+    if ([string]::IsNullOrWhiteSpace($formattedBody)) {
+        gh issue create --title $Title @labelArgs
+    } else {
+        $formattedBody | gh issue create --title $Title @labelArgs --body-file -
+    }
+
+    Write-Host "✓ Issue created successfully: $Title"
+}
+
 # Main execution
 try {
+    # Handle issue creation if requested
+    if ($CreateIssue) {
+        if ([string]::IsNullOrWhiteSpace($IssueTitle)) {
+            throw "Issue title is required when creating an issue"
+        }
+        New-FormattedIssue -Title $IssueTitle -Body $IssueBody -Labels $IssueLabels
+        return
+    }
+
+    # Regular git workflow
     Update-WorkflowTool
     Remove-UnnecessaryFiles
     $isNewRepo = Initialize-GitRepo
+    
+    # Only create repository if it's new
     if ($isNewRepo) {
         Write-Host "Creating new repository on GitHub..."
         gh repo create $repoName --$Visibility
         $repoUrl = "https://github.com/$env:GITHUB_USERNAME/$repoName"
         Write-Host "`nRepository successfully created at: $repoUrl"
         Write-Host "✓ Repository creation successful"
+        Write-Host "✓ Initial setup complete"
     }
+    
+    # Always update and push
     Update-GithubInfo
     Push-ToGithub -CommitMessage $CommitMessage -Visibility $Visibility
     Write-Host "✓ Code pushed successfully"
