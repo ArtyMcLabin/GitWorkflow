@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.17
+# Git Workflow Tool v1.18
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -30,6 +30,46 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 - GitHub integration
 - Cursor IDE support
 - Auto-updates when used as submodule
+- Standardized issue creation for any repository
+
+## Sub-Workflows
+
+### Issue Creation Workflow
+GitWorkflow provides a standardized way to create well-formatted issues in any GitHub repository (both GitWorkflow itself and client projects):
+
+1. Issue Creation Parameters:
+   - `-CreateIssue`: Switch to enable issue creation mode
+   - `-IssueTitle`: Title of the issue (required)
+   - `-IssueBody`: Description of the issue (optional)
+   - `-IssueLabels`: Array of labels to apply (optional)
+
+2. Formatting Features:
+   - Automatic markdown table formatting for issue body
+   - Proper escaping of special characters
+   - Support for multi-line descriptions
+   - Label validation against repository's available labels
+
+3. Usage Examples:
+   ```pwsh
+   # Create a basic issue
+   git_workflow.ps1 -CreateIssue -IssueTitle "Bug Report" -IssueBody "Description of the bug"
+
+   # Create an issue with labels
+   git_workflow.ps1 -CreateIssue -IssueTitle "Feature Request" -IssueBody "New feature description" -IssueLabels @("enhancement")
+
+   # Create an issue with multi-line body
+   git_workflow.ps1 -CreateIssue -IssueTitle "Complex Bug Report" -IssueBody @"
+   Steps to reproduce:
+   1. Do this
+   2. Then that
+   3. Error occurs
+   "@
+   ```
+
+4. Where It Works:
+   - In GitWorkflow's own repository
+   - In any repository using GitWorkflow as a submodule
+   - In any repository with a symbolic link to GitWorkflow
 
 ## Project Rules
 1. Git Operations Rule:
@@ -42,7 +82,8 @@ That's it! Now just type "upload it to github" in any project in Cursor.
      d) If not - wait for implementation in GitWorkflow before proceeding
 
 ## Version History
-- v1.17: Fixed repository messages, improved file removal, added standardized issue creation
+- v1.18: Fixed repository messages, improved file removal, added standardized issue creation
+- v1.17: Added instructions for integrating GitWorkflow into existing GitHub projects
 - v1.16: Updated Project Rules to use generic "Human" reference and allow explicit overrides
 - v1.15: Added Project Rules section with strict GitWorkflow usage rule
 - v1.14: Fixed repository URL display in creation feedback
