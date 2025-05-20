@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.20
+# Git Workflow Tool v1.21
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -95,7 +95,7 @@ GitWorkflow provides a standardized way to manage issues across GitHub repositor
 
 4. Standard Labels:
    - `ai-generated`: Automatically added to issues created by GitWorkflow
-   - `human-approved`: Added when a human approves an issue
+   - `human-approved-request`: Added when a human approves an issue request
    - `ai-implemented`: Added when AI resolves and closes an issue
    - `needs-human-review`: Can be added by users if human review needed
 
@@ -130,6 +130,7 @@ GitWorkflow provides a standardized way to manage issues across GitHub repositor
      d) If not - wait for implementation in GitWorkflow before proceeding
 
 ## Version History
+- v1.21: Changed 'human-approved' label to more specific 'human-approved-request'
 - v1.20: Enhanced issue management with standard messages, labels, and workflows
 - v1.19: Added cross-repository issue creation support
 - v1.18: Fixed repository messages, improved file removal, added standardized issue creation

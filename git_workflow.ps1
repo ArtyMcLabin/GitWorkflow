@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.20
+# Git Workflow Script v1.21
 # This script implements the workflow defined in README.md
 
 param(
@@ -382,12 +382,12 @@ Time: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
     $ghArgs += $IssueNumber, "--body", $approvalMessage
     & gh @ghArgs
 
-    # Add human-approved label
+    # Add human-approved-request label
     $labelArgs = @("issue", "edit")
     if (![string]::IsNullOrWhiteSpace($TargetRepo)) {
         $labelArgs += "-R", $TargetRepo
     }
-    $labelArgs += $IssueNumber, "--add-label", "human-approved"
+    $labelArgs += $IssueNumber, "--add-label", "human-approved-request"
     & gh @labelArgs
 
     Write-Host "✓ Issue #$IssueNumber approved successfully"
