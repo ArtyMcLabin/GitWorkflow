@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.15
+# Git Workflow Tool v1.16
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -34,13 +34,15 @@ That's it! Now just type "upload it to github" in any project in Cursor.
 ## Project Rules
 1. Git Operations Rule:
    - ALWAYS use GitWorkflow (`git_workflow.ps1`) for ANY git operations
-   - NEVER use raw git commands directly
+   - NEVER use raw git commands directly unless explicitly approved by human
    - If an operation is not supported by GitWorkflow:
      a) STOP - do not use raw git commands
-     b) Report to user: "Arty, operation X is not defined in GitWorkflow. Should we add it officially?"
-     c) Wait for user decision before proceeding
+     b) Report to user: "Human, operation X is not defined in GitWorkflow. Should we add it officially?"
+     c) If human explicitly approves using raw git commands - proceed with warning
+     d) If not - wait for implementation in GitWorkflow before proceeding
 
 ## Version History
+- v1.16: Updated Project Rules to use generic "Human" reference and allow explicit overrides
 - v1.15: Added Project Rules section with strict GitWorkflow usage rule
 - v1.14: Fixed repository URL display in creation feedback
 - v1.13: Added detailed repository creation feedback requirements
