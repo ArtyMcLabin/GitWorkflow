@@ -472,14 +472,19 @@ function New-FormattedIssue {
     # Format the body with standard GitWorkflow header
     $formattedBody = "🤖 GitWorkflow: This Issue/FeatureRequest was generated and submitted by LLM, according to GitWorkflow standard`n`n"
     
-    # Add the original body in table format if not empty
+    # Add the original body - if it contains markdown headers (##), pass it as is
     if (![string]::IsNullOrWhiteSpace($Body)) {
-        $lines = $Body -split "`n"
-        $formattedBody += "| Description |`n|-------------|`n"
-        foreach ($line in $lines) {
-            # Escape pipe characters and properly format newlines
-            $escapedLine = $line.Replace("|", "\|").Replace("`n", "<br>")
-            $formattedBody += "| $escapedLine |`n"
+        if ($Body -match '##') {
+            $formattedBody += $Body
+        } else {
+            # If no markdown headers found, wrap in table format
+            $lines = $Body -split "`n"
+            $formattedBody += "| Description |`n|-------------|`n"
+            foreach ($line in $lines) {
+                # Escape pipe characters and properly format newlines
+                $escapedLine = $line.Replace("|", "\|").Replace("`n", "<br>")
+                $formattedBody += "| $escapedLine |`n"
+            }
         }
     }
 
