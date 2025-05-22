@@ -13,27 +13,43 @@ This document defines the standard format for GitHub issue creation and manageme
    
    ```markdown
    ## Overview
-   
-   | Description |
-   |-------------|
-   | Detailed explanation of the issue |
-   
-   
-   | Expected Behavior |
-   |------------------|
-   | What should happen |
-   
-   
-   | Current Behavior |
-   |------------------|
-   | What is happening |
+
+   Brief overview of the issue or feature request.
+
+
+   ## Description
+
+   Detailed explanation of what needs to be done or what the problem is.
+
+
+   ## Technical Details
+
+   - Requirement 1
+   - Requirement 2
+   - Implementation notes
+
+
+   ## Expected Behavior
+
+   What should happen when this is implemented.
+
+
+   ## Current Behavior
+   (For bugs only - remove for feature requests)
+
+   What is currently happening that needs to be fixed.
+
+
+   ## Additional Notes
+
+   Any extra context or information.
    ```
 
    Key formatting rules:
    - Use TWO blank lines between sections (double \n\n)
-   - Start with h2 (##) headers for sections
-   - Add empty line after each table
-   - When using lists, add empty line before and after the list
+   - Start each section with h2 (##) headers
+   - Add empty line after lists
+   - Keep consistent header hierarchy
 
 3. Standard Labels:
    - `ai-generated`: For issues created by AI
@@ -79,27 +95,30 @@ After creating an issue:
 ```markdown
 ## Overview
 
-Need to implement feature X to solve problem Y.
+Need to implement automatic dependency updates.
 
 
-| Description |
-|-------------|
-| Detailed explanation with proper spacing and formatting |
+## Description
+
+Add a system to automatically check for outdated dependencies and create update PRs.
 
 
-| Technical Details |
-|------------------|
-| - Requirement 1
-- Requirement 2
-- Requirement 3 |
+## Technical Details
+
+- Scan package.json and requirements.txt files
+- Compare versions against latest releases
+- Create automated PR with changelog
+- Add tests for the changes
 
 
-| Acceptance Criteria |
-|--------------------|
-| List of criteria that must be met |
+## Expected Behavior
+
+- System detects outdated dependencies weekly
+- Creates PRs with proper version bumps
+- Includes changelog and breaking change warnings
 
 
 ## Additional Notes
 
-Any extra information or context.
+Consider using Dependabot as a reference implementation.
 ``` 
