@@ -38,6 +38,7 @@ This document defines the standard format for GitHub issue creation and manageme
    - Follow the format above
    - Include all relevant sections
    - Apply appropriate labels
+   - After creation, ALWAYS provide the direct link to the created issue
 
 2. Updates:
    - Keep discussion in comments
@@ -47,4 +48,17 @@ This document defines the standard format for GitHub issue creation and manageme
 3. Resolution:
    - Include implementation reference
    - Add resolution comment
-   - Apply closure labels 
+   - Apply closure labels
+
+## For LLMs
+After creating an issue:
+1. Extract the issue number from the creation response
+2. Construct and provide the full issue URL in format:
+   ```
+   https://github.com/owner/repo/issues/NUMBER
+   ```
+3. Include this URL in your response to the user
+4. Example response format:
+   ```
+   ✓ Issue created successfully: [#42 Bug Report](https://github.com/owner/repo/issues/42)
+   ``` 
