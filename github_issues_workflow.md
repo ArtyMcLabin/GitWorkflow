@@ -9,19 +9,31 @@ This document defines the standard format for GitHub issue creation and manageme
    - Example: "[Bug] Login button not working"
 
 2. Body Structure:
+   IMPORTANT: Always include TWO newlines between sections to ensure proper formatting!
+   
    ```markdown
+   ## Overview
+   
    | Description |
    |-------------|
    | Detailed explanation of the issue |
-
+   
+   
    | Expected Behavior |
    |------------------|
    | What should happen |
-
+   
+   
    | Current Behavior |
    |------------------|
    | What is happening |
    ```
+
+   Key formatting rules:
+   - Use TWO blank lines between sections (double \n\n)
+   - Start with h2 (##) headers for sections
+   - Add empty line after each table
+   - When using lists, add empty line before and after the list
 
 3. Standard Labels:
    - `ai-generated`: For issues created by AI
@@ -61,4 +73,33 @@ After creating an issue:
 4. Example response format:
    ```
    ✓ Issue created successfully: [#42 Bug Report](https://github.com/owner/repo/issues/42)
-   ``` 
+   ```
+
+## Example Issue Body
+```markdown
+## Overview
+
+Need to implement feature X to solve problem Y.
+
+
+| Description |
+|-------------|
+| Detailed explanation with proper spacing and formatting |
+
+
+| Technical Details |
+|------------------|
+| - Requirement 1
+- Requirement 2
+- Requirement 3 |
+
+
+| Acceptance Criteria |
+|--------------------|
+| List of criteria that must be met |
+
+
+## Additional Notes
+
+Any extra information or context.
+``` 
