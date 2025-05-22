@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.21
+# Git Workflow Script v1.25
 # This script implements the workflow defined in README.md
 
 param(
@@ -41,6 +41,71 @@ param(
     [string]$Implementation = ""  # Commit hash or PR link for issue resolution
 )
 
+# Source the git status checker
+. (Join-Path $PSScriptRoot "git_status_check.ps1")
+
+function Test-UpdateSecurity {
+    param(
+        [string]$CurrentCommit,
+        [string]$NewCommit
+    )
+
+    $securityChecks = @{
+        HasSuspiciousFiles = $false
+        HasSuspiciousCommands = $false
+        HasLargeChanges = $false
+        Warnings = @()
+    }
+
+    # Get the diff
+    $diff = git diff $CurrentCommit..$NewCommit --name-status
+
+    # Check for suspicious files
+    $suspiciousExtensions = @('.exe', '.dll', '.so', '.dylib', '.sh', '.bat', '.cmd', '.ps1')
+    $suspiciousFiles = $diff | Where-Object { 
+        $_ -match '^[AM]' -and ($suspiciousExtensions | Where-Object { $_ -eq [System.IO.Path]::GetExtension($_) })
+    }
+    if ($suspiciousFiles) {
+        $securityChecks.HasSuspiciousFiles = $true
+        $securityChecks.Warnings += "⚠️ New executable or script files detected in update"
+    }
+
+    # Check for suspicious commands in PowerShell files
+    $suspiciousCommands = @(
+        'Invoke-Expression', 'iex', 'Invoke-WebRequest', 'wget', 'curl',
+        'Start-Process', 'New-Service', 'Set-ExecutionPolicy',
+        'Add-MpPreference', 'Set-MpPreference', # Windows Defender modifications
+        'reg', 'regedit', # Registry modifications
+        'netsh', 'route', # Network modifications
+        'Remove-Item.*-Recurse.*-Force', # Dangerous deletions
+        'Format-Volume', 'Clear-Disk' # Disk operations
+    )
+
+    $psFiles = git diff $CurrentCommit..$NewCommit --diff-filter=AM --name-only -- '*.ps1'
+    foreach ($file in $psFiles) {
+        $content = git show "$NewCommit`:$file"
+        foreach ($cmd in $suspiciousCommands) {
+            if ($content -match $cmd) {
+                $securityChecks.HasSuspiciousCommands = $true
+                $securityChecks.Warnings += "⚠️ Suspicious PowerShell command detected: $cmd"
+            }
+        }
+    }
+
+    # Check for large changes
+    $stats = git diff --shortstat $CurrentCommit..$NewCommit
+    if ($stats -match '(\d+) insertion.*, (\d+) deletion') {
+        $insertions = [int]$Matches[1]
+        $deletions = [int]$Matches[2]
+        if (($insertions + $deletions) -gt 500) {
+            $securityChecks.HasLargeChanges = $true
+            $securityChecks.Warnings += "⚠️ Large number of changes detected ($($insertions + $deletions) lines)"
+        }
+    }
+
+    return $securityChecks
+}
+
 function Update-WorkflowTool {
     # Check if we're running from a submodule
     $workflowPath = Split-Path -Parent $PSCommandPath
@@ -49,12 +114,63 @@ function Update-WorkflowTool {
         try {
             Push-Location $workflowPath
             $currentCommit = git rev-parse HEAD
-            git submodule update --remote --merge
-            $newCommit = git rev-parse HEAD
+            
+            # Fetch updates but don't apply yet
+            git fetch origin master
+            $newCommit = git rev-parse origin/master
+
             if ($currentCommit -ne $newCommit) {
-                Write-Host "Updated GitWorkflow from $currentCommit to $newCommit"
-                Write-Host "Changes:"
+                Write-Host "`nNew GitWorkflow update available!"
+                Write-Host "Current version: $currentCommit"
+                Write-Host "New version: $newCommit"
+                Write-Host "`nChanges:"
                 git log --oneline $currentCommit..$newCommit
+
+                # Perform security checks
+                $securityChecks = Test-UpdateSecurity -CurrentCommit $currentCommit -NewCommit $newCommit
+
+                if ($securityChecks.HasSuspiciousFiles -or 
+                    $securityChecks.HasSuspiciousCommands -or 
+                    $securityChecks.HasLargeChanges) {
+                    
+                    Write-Host "`n⚠️ SECURITY WARNING ⚠️"
+                    Write-Host "The update contains potentially suspicious changes:"
+                    foreach ($warning in $securityChecks.Warnings) {
+                        Write-Host $warning
+                    }
+                    Write-Host "`nWould you like to:"
+                    Write-Host "1) View the exact changes (recommended)"
+                    Write-Host "2) Apply the update anyway"
+                    Write-Host "3) Skip this update"
+                    
+                    $choice = Read-Host "Enter your choice (1-3)"
+                    
+                    switch ($choice) {
+                        "1" {
+                            git diff $currentCommit..$newCommit | more
+                            $confirm = Read-Host "Would you like to apply this update? (y/N)"
+                            if ($confirm -ne "y") {
+                                Write-Host "Update skipped."
+                                return
+                            }
+                        }
+                        "2" {
+                            Write-Host "Proceeding with update..."
+                        }
+                        "3" {
+                            Write-Host "Update skipped."
+                            return
+                        }
+                        default {
+                            Write-Host "Invalid choice. Update skipped for safety."
+                            return
+                        }
+                    }
+                }
+
+                # Apply the update
+                git merge origin/master
+                Write-Host "`n✓ Updated GitWorkflow from $currentCommit to $newCommit"
             } else {
                 Write-Host "GitWorkflow is already up to date"
             }
@@ -67,11 +183,20 @@ function Update-WorkflowTool {
 }
 
 function Initialize-GitRepo {
-    # Check if git is already initialized
-    if (Test-Path .git) {
-        Write-Host "Git repository already initialized"
-        git remote -v  # Display remote info if exists
+    # Get current git status
+    $gitStatus = Get-GitStatus
+
+    # If it's already a git repo with a remote, we don't need to initialize
+    if ($gitStatus.IsGitRepo -and $gitStatus.HasRemote) {
+        Write-Host "Git repository already initialized with remote: $($gitStatus.RemoteUrl)"
         return $false
+    }
+
+    # If it's a git repo but no remote, we just need to add the remote
+    if ($gitStatus.IsGitRepo) {
+        Write-Host "Git repository exists locally but has no remote."
+        $script:repoName = Split-Path -Leaf (Get-Location)
+        return $true
     }
 
     # Check repository name from current directory
@@ -81,6 +206,11 @@ function Initialize-GitRepo {
     gh repo view $env:GITHUB_USERNAME/$repoName 2>$null
     if ($?) {
         Write-Host "Repository already exists on GitHub: $repoName"
+        
+        # If we're here, it means the repo exists on GitHub but not locally
+        # Let's clone it instead of initializing
+        Write-Host "Cloning existing repository..."
+        git clone "https://github.com/$env:GITHUB_USERNAME/$repoName" .
         return $false
     }
 
@@ -198,20 +328,21 @@ function Push-ToGithub {
         # Get current timestamp for commit message
         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
         
-        # Use provided commit message or default to timestamp
-        if ([string]::IsNullOrEmpty($CommitMessage)) {
-            $CommitMessage = "Update ${timestamp}: Regular update"
+        # Check if commit message contains issue references
+        if ($CommitMessage -match '#\d+') {
+            # Extract issue numbers
+            $issueNumbers = [regex]::Matches($CommitMessage, '#(\d+)') | ForEach-Object { $_.Groups[1].Value }
+            
+            # Add "Closes" keyword for each issue if not already present
+            foreach ($issueNum in $issueNumbers) {
+                if ($CommitMessage -notmatch "(?i)closes\s*#$issueNum") {
+                    $CommitMessage = "$CommitMessage`n`nCloses #$issueNum"
+                }
+            }
         }
 
-        # Check if there are changes to commit
-        $status = git status --porcelain
-        if ([string]::IsNullOrEmpty($status)) {
-            Write-Host "No changes to commit"
-            return
-        }
-
-        # Commit with message
-        git commit -m $CommitMessage
+        # Create commit with timestamp
+        git commit -m "$CommitMessage [$timestamp]"
 
         # Push to GitHub
         git push -u origin master
