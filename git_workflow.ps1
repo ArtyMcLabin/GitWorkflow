@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Git Workflow Script v1.25
+# Git Workflow Script v1.26
 # This script implements the workflow defined in README.md
 
 param(
@@ -359,20 +359,44 @@ function Add-License {
         [string]$RepoOwner
     )
 
-    $year = Get-Date -Format "yyyy"
-    
+    # Get current year
+    $year = (Get-Date).Year.ToString()
+
     switch ($LicenseType.ToUpper()) {
         "MIT" {
             try {
-                # Fetch MIT license template from official source
+                # Primary method: Fetch MIT license template from official source
                 $licenseText = (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/licenses/license-templates/master/templates/mit.txt").Content
-                # Replace year and owner
                 $licenseText = $licenseText.Replace("[year]", $year).Replace("[fullname]", $RepoOwner)
                 $licenseText | Out-File -FilePath LICENSE -Encoding utf8
             }
             catch {
-                Write-Warning "Failed to fetch MIT license online. Using fallback method..."
-                gh license apply mit
+                Write-Warning "Failed to fetch MIT license online. Using fallback template..."
+                # Fallback method: Use embedded template
+                $mitTemplate = @"
+MIT License
+
+Copyright (c) $year $RepoOwner
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"@
+                $mitTemplate | Out-File -FilePath LICENSE -Encoding utf8
             }
         }
         default {

@@ -3,3 +3,46 @@ description:
 globs:
 alwaysApply: false
 ---
+# GitWorkflow Self-Maintenance
+
+This is the GitWorkflow repository itself. Unlike client projects:
+- NEVER try to add GitWorkflow as a submodule here
+- Use ./git_workflow.ps1 directly
+
+## Special Case Handling
+1) No Submodule Required:
+   - Unlike client projects, we ARE the GitWorkflow repository
+   - Use local git_workflow.ps1 directly
+   - NEVER try to add GitWorkflow as a submodule here
+
+2) Git Operations:
+   - Use ./git_workflow.ps1 for all operations
+   - Follow all standard GitWorkflow practices
+   - Version numbers must be incremented appropriately:
+     a) README.md title
+     b) git_workflow.ps1 version comment
+     c) Version History section
+
+3) Security Considerations:
+   - All security checks still apply
+   - Extra caution needed as changes here affect all client projects
+   - Review all PowerShell commands thoroughly
+
+4) Version Management:
+   - Update version numbers before pushing
+   - Document changes in Version History
+   - Group changes by category (Security, Architecture, etc.)
+
+5) Documentation:
+   - Keep README.md as single source of truth
+   - Update AI instructions when changing behavior
+   - Maintain clear separation between:
+     a) Human instructions (minimal, just user rule)
+     b) AI instructions (detailed, in README)
+     c) Architecture documentation (this and other .mdc files)
+
+## Recursive Update Handling
+Since we use GitWorkflow to update itself:
+1) Changes to update mechanism must be backward compatible
+2) Security checks must run BEFORE applying any updates
+3) Version checks must prevent circular updates

@@ -3,3 +3,58 @@ description:
 globs:
 alwaysApply: false
 ---
+# GitWorkflow Architecture Strategy
+
+This rule explains the architectural strategy of GitWorkflow's integration with Cursor AI. This is a meta-rule for GitWorkflow repository maintenance only, not for client projects.
+
+## Core Architecture
+
+1) User Rule (Global Level):
+   - Single, simple rule that points to GitWorkflow README
+   - Triggers initial decision in new projects
+   - Creates appropriate project rule (use/no_use) if none exists
+   ```
+   When working with Git repositories: Use GitWorkflow (https://github.com/ArtyMcLabin/GitWorkflow) by reading and following its README.md (includes instructions for you to set it up). If explicitly told "don't use GitWorkflow", create a .cursor/rules/no_gitworkflow.mdc file in the project to remember this decision for the specific project.
+   ```
+
+2) Project Rules (Client Project Level):
+   Either:
+   a) `.cursor/rules/use_gitworkflow.mdc`:
+      - Created by following README.md instructions
+      - Contains all operational instructions
+      - Details how to use GitWorkflow for all git operations
+   OR
+   b) `.cursor/rules/no_gitworkflow.mdc`:
+      - Created when explicitly told not to use GitWorkflow
+      - Marks project as exempt from GitWorkflow
+
+## Flow of Operation
+
+1) New Project Setup:
+   - LLM sees user rule
+   - Reads GitWorkflow README
+   - Follows setup instructions
+   - Creates use_gitworkflow.mdc in client project
+
+2) Exemption Setup:
+   - User explicitly says "don't use GitWorkflow"
+   - LLM creates no_gitworkflow.mdc
+   - Project remains exempt from GitWorkflow
+
+3) Existing Project:
+   - LLM checks for existing .mdc files
+   - Follows their instructions
+   - No need to re-check README unless updating
+
+## Maintenance Notes
+
+When updating GitWorkflow:
+1) Update README.md with new features/changes
+2) The README should include instructions for creating/updating use_gitworkflow.mdc
+3) No need to update user rules as they just point to README
+
+This architecture ensures:
+- Single source of truth (README.md)
+- Clear separation of concerns
+- Project-level persistence of decisions
+- Easy updates through README changes
