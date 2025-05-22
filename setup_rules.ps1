@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# v1.1 - Updated for new rule architecture
+# v1.2 - Simplified rules to reference README.md
 
 # Create .cursor/rules directory if it doesn't exist
 $rulesDir = ".cursor/rules"
@@ -28,31 +28,19 @@ $ruleContent = @"
 # GitWorkflow Usage Rules
 
 This project uses GitWorkflow for all git operations.
+For detailed implementation guidelines, refer to the AI Agent Instructions section in GitWorkflow's README.md.
 
+Core Runtime Rules:
 1) Git Operations:
-   - ALWAYS use `.git_workflow/git_workflow.ps1` for ANY git operations
-   - NEVER use raw git commands unless explicitly approved by human
-   - If operation not supported by GitWorkflow:
-     a) STOP - do not use raw git commands
-     b) Report to user: "Human, operation X is not defined in GitWorkflow. Should we add it officially?"
-     c) Only proceed with raw git if explicitly approved
+   - Use `.git_workflow/git_workflow.ps1` for ALL git operations
+   - NEVER use raw git commands without explicit human approval
+   - Report unsupported operations to human for official implementation
 
-2) Repository Operations:
-   - Check for updates before operations: `.git_workflow/git_workflow.ps1`
-   - Follow security warnings if shown
-   - Use standard commit message format
-   - Always include issue references if applicable
+2) Security:
+   - Follow all security prompts
+   - Never bypass security checks without human approval
 
-3) Issue Management:
-   - Use GitWorkflow's issue creation system
-   - Follow standard labeling conventions
-   - Use proper issue templates
-   - Link commits to issues when resolving
-
-4) Security:
-   - Review security warnings during updates
-   - Never bypass security checks without user approval
-   - Report suspicious changes to repository owner
+For complete instructions, see: https://github.com/ArtyMcLabin/GitWorkflow/README.md#-ai-agent-instructions
 "@
 
 Set-Content -Path $useRule -Value $ruleContent
