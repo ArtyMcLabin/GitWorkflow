@@ -1,11 +1,12 @@
 ---
-description:
+description: read when curious about the architecture
 globs:
 alwaysApply: false
 ---
 # GitWorkflow Architecture Strategy
 
 This rule explains the architectural strategy of GitWorkflow's integration with Cursor AI. This is a meta-rule for GitWorkflow repository maintenance only, not for client projects.
+keep in mind that it might be slightly outdated, so read the README.md too 
 
 ## Core Architecture
 
