@@ -1,4 +1,4 @@
-# Git Workflow Tool v1.31
+# Git Workflow Tool v1.32
 
 # A word from the developer
 Cursor fully-automatically uploaded this git project into GitHub, and pushed edits. Using itself. Yes, that's a automation project for maintaining GitHub repositories, which also uses itself to maintain itself :]
@@ -25,7 +25,7 @@ a)
            do "/Generate Cursor Rules"  no_gitworkflow.mdc with text "don't use GitWorkflow" and "description: anything git related"
     }else{
        a1) if you are not Claude's LLM model - give exactly that warning to me: "GitWorkflow strongly suggests to run the initial setup using Claude. GPT4.1 is known to skip steps, Gemini2.5 too."  and wait for user before you do anything else.
-       a2) open and fully read (critical to do it before doing anything else) https://github.com/ArtyMcLabin/GitWorkflow/README.md and 
+       a2) open and fully read (critical to do it before doing anything else) https://github.com/ArtyMcLabin/GitWorkflow/blob/master/README.md and 
            follow its instructions.
     }
 }
